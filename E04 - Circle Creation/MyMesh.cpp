@@ -12,13 +12,39 @@ void MyMesh::GenerateCircle(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	if (a_nSubdivisions > 360)
 		a_nSubdivisions = 360;
 
-	/*
-		Calculate a_nSubdivisions number of points around a center point in a radial manner
-		then call the AddTri function to generate a_nSubdivision number of faces
-	*/
-	AddTri(	vector3(0.0f, 0.0f, 0.0f),
-			vector3(1.0f, 0.0f, 0.0f),
-			vector3(0.77f, 0.77f, 0.0f));
+	float fAngleBetweenPoints = 360 / a_nSubdivisions;
+	float fCurrentAngle = 0;
+	float fX, fY;
+	int iFollowingIdx;
+	std::vector<vector3> lOuterPoints;
+
+	// calculate points surrounding the center
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		fX = a_fRadius * cos(fCurrentAngle * PI / 180);
+		fY = a_fRadius * sin(fCurrentAngle * PI / 180);
+		lOuterPoints.push_back(vector3(fX, fY, 0));
+		fCurrentAngle += fAngleBetweenPoints;
+	}
+
+	// draw specified number of triangles
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// wrap around to index 0 for last triangle
+		if (i == a_nSubdivisions - 1)
+		{
+			iFollowingIdx = 0;
+		}
+		else 
+		{
+			iFollowingIdx = i + 1;
+		}
+
+		// draw triangle using center and outer points
+		AddTri(vector3(0.0f, 0.0f, 0.0f),
+			lOuterPoints[i],
+			lOuterPoints[iFollowingIdx]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
