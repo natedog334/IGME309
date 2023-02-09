@@ -8,6 +8,17 @@ void Application::InitVariables(void)
 	vector3 v3Upward = AXIS_Y;
 	m_pCameraMngr->SetPositionTargetAndUpward(v3Position, v3Target, v3Upward);
 
+	// initialize shape
+	m_pMyShape = new MyMesh();
+	// create vertices
+	//m_pMyShape->AddVertexPosition(vector3(0.0f, 0.0f, 0.0f));
+	//m_pMyShape->AddVertexPosition(vector3(1.0f, 0.0f, 0.0f));
+	//m_pMyShape->AddVertexPosition(vector3(0.0f, 1.0f, 0.0f));
+	m_pMyShape->AddTri(vector3(0.0f, 0.0f, 0.0f), vector3(1.0f, 0.0f, 0.0f), vector3(0.0f, 1.0f, 0.0f)); // equal to above 3 lines
+	// compile and send to graphics card
+	m_pMyShape->CompleteMesh(C_BLUE);
+	m_pMyShape->CompileOpenGL3X();
+
 	m_pMesh1 = new MyMesh();
 	m_pMesh1->GenerateCube(1.0f, C_PURPLE);
 
@@ -40,8 +51,9 @@ void Application::Display(void)
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 
-	m_pMesh1->Render(m4Projection, m4View, m4Model);
-	m_pMesh2->Render(m4Projection, m4View, glm::translate(IDENTITY_M4, vector3(2.0f)));
+	m_pMyShape->Render(m4Projection, m4View, m4Model);
+	//m_pMesh1->Render(m4Projection, m4View, m4Model);
+	//m_pMesh2->Render(m4Projection, m4View, glm::translate(IDENTITY_M4, vector3(2.0f)));
 
 	// draw a skybox
 	m_pModelMngr->AddSkyboxToRenderList();
@@ -60,7 +72,7 @@ void Application::Display(void)
 }
 void Application::Release(void)
 {
-
+	SafeDelete(m_pMyShape);
 	SafeDelete(m_pMesh1);
 	SafeDelete(m_pMesh2);
 
