@@ -60,9 +60,38 @@ void MyMesh::GenerateCone(float a_fRadius, float a_fHeight, int a_nSubdivisions,
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	float fRadsBetweenPoints = 2 * PI / a_nSubdivisions;
+	float fCurrentRads = 0;
+	float fX, fY;
+	vector3 tipPoint = vector3(0, 0, a_fHeight);
+	std::vector<vector3> lOuterPoints;
+
+	// calculate points surrounding the center
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		fX = a_fRadius * cos(fCurrentRads);
+		fY = a_fRadius * sin(fCurrentRads);
+		lOuterPoints.push_back(vector3(fX, fY, 0));
+		fCurrentRads += fRadsBetweenPoints;
+	}
+
+	// draw base
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// draw triangle using center and outer points
+		AddTri(ZERO_V3,
+			lOuterPoints[(i + 1) % a_nSubdivisions],
+			lOuterPoints[i]);
+	}
+
+	// draw sides
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// draw triangle using center and outer points
+		AddTri(lOuterPoints[i],
+			lOuterPoints[(i + 1) % a_nSubdivisions],
+			tipPoint);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -84,9 +113,45 @@ void MyMesh::GenerateCylinder(float a_fRadius, float a_fHeight, int a_nSubdivisi
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	float fRadsBetweenPoints = 2 * PI / a_nSubdivisions;
+	float fCurrentRads = 0;
+	float fX, fY;
+	vector3 topCenter = vector3(0, 0, a_fHeight / 2);
+	vector3 bottomCenter = vector3(0, 0, -a_fHeight / 2);
+	std::vector<vector3> lTopPoints;
+	std::vector<vector3> lBottomPoints;
+
+	// calculate points for top and bottom faces
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		fX = a_fRadius * cos(fCurrentRads);
+		fY = a_fRadius * sin(fCurrentRads);
+		lTopPoints.push_back(vector3(fX, fY, a_fHeight / 2));
+		lBottomPoints.push_back(vector3(fX, fY, -a_fHeight / 2));
+		fCurrentRads += fRadsBetweenPoints;
+	}
+
+	// draw bases
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// draw triangles using center and outer points
+		AddTri(topCenter,
+			lTopPoints[i],
+			lTopPoints[(i + 1) % a_nSubdivisions]);
+		AddTri(bottomCenter,
+			lBottomPoints[(i + 1) % a_nSubdivisions],
+			lBottomPoints[i]);
+	}
+
+	// draw sides
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// draw rectangular side using points along the bases
+		AddQuad(lBottomPoints[i],
+			lBottomPoints[(i + 1) % a_nSubdivisions],
+			lTopPoints[i],
+			lTopPoints[(i + 1) % a_nSubdivisions]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -114,9 +179,60 @@ void MyMesh::GenerateTube(float a_fOuterRadius, float a_fInnerRadius, float a_fH
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	float fRadsBetweenPoints = 2 * PI / a_nSubdivisions;
+	float fCurrentRads = 0;
+	float fOuterX, fOuterY, fInnerX, fInnerY;
+	vector3 topCenter = vector3(0, 0, a_fHeight / 2);
+	vector3 bottomCenter = vector3(0, 0, -a_fHeight / 2);
+	std::vector<vector3> lTopOuterPoints;
+	std::vector<vector3> lTopInnerPoints;
+	std::vector<vector3> lBottomOuterPoints;
+	std::vector<vector3> lBottomInnerPoints;
+
+	// calculate points for top and bottom faces
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		fOuterX = a_fOuterRadius * cos(fCurrentRads);
+		fOuterY = a_fOuterRadius * sin(fCurrentRads);
+		fInnerX = a_fInnerRadius * cos(fCurrentRads);
+		fInnerY = a_fInnerRadius * sin(fCurrentRads);
+		lTopOuterPoints.push_back(vector3(fOuterX, fOuterY, a_fHeight / 2));
+		lTopInnerPoints.push_back(vector3(fInnerX, fInnerY, a_fHeight / 2));
+		lBottomOuterPoints.push_back(vector3(fOuterX, fOuterY, -a_fHeight / 2));
+		lBottomInnerPoints.push_back(vector3(fInnerX, fInnerY, -a_fHeight / 2));
+
+		fCurrentRads += fRadsBetweenPoints;
+	}
+
+	// draw bases
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// top
+		AddQuad(lTopOuterPoints[i],
+			lTopOuterPoints[(i + 1) % a_nSubdivisions],
+			lTopInnerPoints[i],
+			lTopInnerPoints[(i + 1) % a_nSubdivisions]);
+		// bottom
+		AddQuad(lBottomOuterPoints[(i + 1) % a_nSubdivisions],
+			lBottomOuterPoints[i],
+			lBottomInnerPoints[(i + 1) % a_nSubdivisions],
+			lBottomInnerPoints[i]);
+	}
+
+	// draw sides
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		// outer
+		AddQuad(lBottomOuterPoints[i],
+			lBottomOuterPoints[(i + 1) % a_nSubdivisions],
+			lTopOuterPoints[i],
+			lTopOuterPoints[(i + 1) % a_nSubdivisions]);
+		// inner
+		AddQuad(lBottomInnerPoints[(i + 1) % a_nSubdivisions],
+			lBottomInnerPoints[i],
+			lTopInnerPoints[(i + 1) % a_nSubdivisions],
+			lTopInnerPoints[i]);
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
@@ -146,9 +262,24 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fOuterRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	float fRadsBetweenPoints = 2 * PI / a_nSubdivisionsA;
+	float fCurrentRads = 0;
+	float fOuterX, fOuterY, fInnerX, fInnerY;
+	std::vector<vector3> lOuterPoints;
+	std::vector<vector3> lInnerPoints;
+
+	// calculate points for top and bottom faces
+	for (int i = 0; i < a_nSubdivisionsA; i++)
+	{
+		fOuterX = a_fOuterRadius * cos(fCurrentRads);
+		fOuterY = a_fOuterRadius * sin(fCurrentRads);
+		fInnerX = a_fInnerRadius * cos(fCurrentRads);
+		fInnerY = a_fInnerRadius * sin(fCurrentRads);
+		lOuterPoints.push_back(vector3(fOuterX, fOuterY, 0));
+		lInnerPoints.push_back(vector3(fInnerX, fInnerY, 0));
+
+		fCurrentRads += fRadsBetweenPoints;
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
