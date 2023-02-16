@@ -263,20 +263,25 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Init();
 
 	float fRadsBetweenPoints = 2 * PI / a_nSubdivisionsA;
+	float fRadsBetweenRingPoints = 2 * PI / a_nSubdivisionsB;
 	float fCurrentRads = 0;
-	float fOuterX, fOuterY, fInnerX, fInnerY;
-	std::vector<vector3> lOuterPoints;
-	std::vector<vector3> lInnerPoints;
+	float fCurrentRingRads = 0;
+	float fRingRadius = (a_fOuterRadius - a_fInnerRadius) / 2;
+	float fX, fY, fZ;
+	std::vector<vector3> lRingSurfacePoints;
 
-	// calculate points for top and bottom faces
+	// calculate points on the surface of the ring
 	for (int i = 0; i < a_nSubdivisionsA; i++)
 	{
-		fOuterX = a_fOuterRadius * cos(fCurrentRads);
-		fOuterY = a_fOuterRadius * sin(fCurrentRads);
-		fInnerX = a_fInnerRadius * cos(fCurrentRads);
-		fInnerY = a_fInnerRadius * sin(fCurrentRads);
-		lOuterPoints.push_back(vector3(fOuterX, fOuterY, 0));
-		lInnerPoints.push_back(vector3(fInnerX, fInnerY, 0));
+		fCurrentRingRads = 0;
+
+		for (int j = 0; j < a_nSubdivisionsB; j++)
+		{
+			fX = fRingRadius * cos(fCurrentRads);
+			fY = fRingRadius * sin(fCurrentRads);
+			lRingSurfacePoints.push_back(vector3(fX,fY, fZ));
+			fCurrentRads += fRadsBetweenPoints;
+		}
 
 		fCurrentRads += fRadsBetweenPoints;
 	}
