@@ -262,6 +262,7 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	Release();
 	Init();
 
+	int iTotalPoints = a_nSubdivisionsA * a_nSubdivisionsB;
 	float fRadsBetweenPoints = 2 * PI / a_nSubdivisionsA;
 	float fRadsBetweenRingPoints = 2 * PI / a_nSubdivisionsB;
 	float fCurrentRads = 0;
@@ -270,11 +271,12 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	float fX, fY, fZ;
 	std::vector<vector3> lRingSurfacePoints;
 
-	// calculate points along the surface of the ring
+	// for each section of the torus...
 	for (int i = 0; i < a_nSubdivisionsA; i++)
 	{
 		fCurrentRingRads = 0;
 
+		// ...calculate the points along the surface
 		for (int j = 0; j < a_nSubdivisionsB; j++)
 		{
 			fX = (a_fOuterRadius + (fRingRadius * cos(fCurrentRingRads))) * cos(fCurrentRads);
@@ -287,11 +289,16 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 		fCurrentRads += fRadsBetweenPoints;
 	}
 
-	// draw the outside faces of the ring
-	for (int i = 0; i < (a_nSubdivisionsA * a_nSubdivisionsB); i++)
+	// draw the outside faces
+	for (int i = 0; i < a_nSubdivisionsA; i++)
 	{
-		// i -> i+1 -> i+subdivisionsB -> i+subdivisions+1
-		// mod a_nSubdivisionsA * a_nSubdivisionsB
+		for (int j = 0; j < a_nSubdivisionsB; j++)
+		{
+			AddQuad(lRingSurfacePoints[((j + 1) % a_nSubdivisionsB) + (i * a_nSubdivisionsB)],
+				lRingSurfacePoints[(j % a_nSubdivisionsB) + (i * a_nSubdivisionsB)],
+				lRingSurfacePoints[((j + 1) % a_nSubdivisionsB) + ((i + 1) * a_nSubdivisionsB) % iTotalPoints],
+				lRingSurfacePoints[(j % a_nSubdivisionsB) + ((i + 1) * a_nSubdivisionsB) % iTotalPoints]);
+		}
 	}
 
 	// Adding information about color
