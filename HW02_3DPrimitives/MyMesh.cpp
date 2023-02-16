@@ -270,20 +270,28 @@ void MyMesh::GenerateTorus(float a_fOuterRadius, float a_fInnerRadius, int a_nSu
 	float fX, fY, fZ;
 	std::vector<vector3> lRingSurfacePoints;
 
-	// calculate points on the surface of the ring
+	// calculate points along the surface of the ring
 	for (int i = 0; i < a_nSubdivisionsA; i++)
 	{
 		fCurrentRingRads = 0;
 
 		for (int j = 0; j < a_nSubdivisionsB; j++)
 		{
-			fX = fRingRadius * cos(fCurrentRads);
-			fY = fRingRadius * sin(fCurrentRads);
-			lRingSurfacePoints.push_back(vector3(fX,fY, fZ));
-			fCurrentRads += fRadsBetweenPoints;
+			fX = (a_fOuterRadius + (fRingRadius * cos(fCurrentRingRads))) * cos(fCurrentRads);
+			fY = (a_fOuterRadius + (fRingRadius * cos(fCurrentRingRads))) * sin(fCurrentRads);
+			fZ = fRingRadius * sin(fCurrentRingRads);
+			lRingSurfacePoints.push_back(vector3(fX, fY, fZ));
+			fCurrentRingRads += fRadsBetweenRingPoints;
 		}
 
 		fCurrentRads += fRadsBetweenPoints;
+	}
+
+	// draw the outside faces of the ring
+	for (int i = 0; i < (a_nSubdivisionsA * a_nSubdivisionsB); i++)
+	{
+		// i -> i+1 -> i+subdivisionsB -> i+subdivisions+1
+		// mod a_nSubdivisionsA * a_nSubdivisionsB
 	}
 
 	// Adding information about color
