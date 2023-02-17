@@ -322,9 +322,50 @@ void MyMesh::GenerateSphere(float a_fRadius, int a_nSubdivisions, vector3 a_v3Co
 	Release();
 	Init();
 
-	// Replace this with your code
-	GenerateCube(a_fRadius * 2.0f, a_v3Color);
-	// -------------------------------
+	int iSurfaceGranularity = 5;
+	int iTotalPoints = a_nSubdivisions * iSurfaceGranularity;
+	float fRadsBetweenPoints = 2 * PI / a_nSubdivisions;
+	float fRadsBetweenRingPoints = PI / (iSurfaceGranularity - 1);
+	float fCurrentRads = 0;
+	float fCurrentRingRads = PI / 2;
+	float fX, fY, fZ;
+	std::vector<vector3> lRingSurfacePoints;
+
+	// for each subdivision of the sphere...
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		fCurrentRingRads = PI / 2;
+
+		// ...calculate the points along the surface
+		for (int j = 0; j < iSurfaceGranularity; j++)
+		{
+			fX = (a_fRadius * cos(fCurrentRingRads)) * cos(fCurrentRads);
+			fY = (a_fRadius * cos(fCurrentRingRads)) * sin(fCurrentRads);
+			fZ = a_fRadius * sin(fCurrentRingRads);
+			lRingSurfacePoints.push_back(vector3(fX, fY, fZ));
+			fCurrentRingRads += fRadsBetweenRingPoints;
+		}
+
+		fCurrentRads += fRadsBetweenPoints;
+	}
+
+	int first, second, third, fourth;
+
+	// draw the outside faces
+	for (int i = 0; i < a_nSubdivisions; i++)
+	{
+		for (int j = 0; j < iSurfaceGranularity; j++)
+		{
+			first = j + (i * iSurfaceGranularity);
+			second = ((j + 1) + (i * iSurfaceGranularity)) % iTotalPoints;
+			third = (j + ((i + 1) * iSurfaceGranularity)) % iTotalPoints;
+			fourth = ((j + 1) + ((i + 1) * iSurfaceGranularity)) % iTotalPoints;
+			AddQuad(lRingSurfacePoints[first],
+				lRingSurfacePoints[second],
+				lRingSurfacePoints[third],
+				lRingSurfacePoints[fourth]);
+		}
+	}
 
 	// Adding information about color
 	CompleteMesh(a_v3Color);
