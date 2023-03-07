@@ -38,11 +38,39 @@ void Application::Display(void)
 	//Calculate the model, view and projection matrix
 	matrix4 m4Projection = m_pCameraMngr->GetProjectionMatrix();
 	matrix4 m4View = m_pCameraMngr->GetViewMatrix();
-	//static float displacement = 0;
-	// matrix4 m4Model = glm::translate(vector3(displacement, 0 0));
+	static float displacement = 0;
+	displacement += 0.05;
 
-	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall));
-	// m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(1, 0, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(0 + displacement, 0, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(1 + displacement, 0, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(3 + displacement, 0, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(4 + displacement, 0, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(-3 + displacement, 1, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(-1 + displacement, 1, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(5 + displacement, 1, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(7 + displacement, 1, 0)));
+	for (int i = -3; i < 8; i++)
+	{
+		if ((i != -2) && (i != 6))
+			m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(i + displacement, 2, 0)));
+	}
+	for (int i = -3; i < 8; i++)
+	{
+		m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(i + displacement, 3, 0)));
+	}
+	for (int i = -2; i < 7; i++)
+	{
+		if ((i != 0) && (i != 4))
+			m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(i + displacement, 4, 0)));
+	}
+	for (int i = -1; i < 6; i++)
+	{
+		m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(i + displacement, 5, 0)));
+	}
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(0 + displacement, 6, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(4 + displacement, 6, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(-1 + displacement, 7, 0)));
+	m_pMesh->Render(m4Projection, m4View, ToMatrix4(m_qArcBall) * glm::translate(IDENTITY_M4, vector3(5 + displacement, 7, 0)));
 
 	// draw a skybox
 	m_pModelMngr->AddSkyboxToRenderList();
