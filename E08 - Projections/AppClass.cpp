@@ -63,20 +63,29 @@ void Application::Display(void)
 		break;
 	case 3:
 		m_pCamera->ResetCamera();
-		m_pCamera->SetPosition(vector3(10.0f, 0.0f, 0.0f));
+		m_pCamera->SetPosition(vector3(25.0f, 0.0f, 0.0f));
 		m_pCamera->SetUp(vector3(0.0f, 0.0f, -1.0f));
 		break;
 	case 4:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f));
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
 		break;
 	case 5:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f));
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
+		m_pCamera->SetNearFar(vector2(5, 100000));
 		break;
 	case 6:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetTarget(vector3(0.0f, 0.0f, 0.0f));
+		m_pCamera->SetPosition(vector3(0.0f, 0.0f, -15.0f));
+		m_pCamera->SetNearFar(vector2(0.01f, 10));
 		break;
 	case 7:
 		m_pCamera->ResetCamera();
+		m_pCamera->SetUp(vector3(0.0f, -1.0f, 0.0f));
 		break;
 	}
 
