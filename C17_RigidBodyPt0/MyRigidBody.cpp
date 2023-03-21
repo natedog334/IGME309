@@ -62,7 +62,55 @@ void MyRigidBody::Release(void)
 //The big 3
 MyRigidBody::MyRigidBody(std::vector<vector3> a_pointList)
 {
+	int count = a_pointList.size();
+
 	Init();
+
+	if (count < 1)
+	{
+		return;
+	}
+
+	m_v3Center = a_pointList[0];
+	m_v3MaxL = m_v3MinL = a_pointList[0];
+
+	// find center
+	for (int i = 0; i < count; i++)
+	{
+		// max coordinates
+		if (m_v3MaxL.x < a_pointList[i].x)
+		{
+			m_v3MaxL.x = a_pointList[i].x;
+		}
+		if (m_v3MaxL.y < a_pointList[i].y)
+		{
+			m_v3MaxL.y = a_pointList[i].y;
+		}
+		if (m_v3MaxL.z < a_pointList[i].z)
+		{
+			m_v3MaxL.z = a_pointList[i].z;
+		}
+
+		// min coordinates
+		if (m_v3MinL.x > a_pointList[i].x)
+		{
+			m_v3MinL.x = a_pointList[i].x;
+		}
+		if (m_v3MinL.y > a_pointList[i].y)
+		{
+			m_v3MinL.y = a_pointList[i].y;
+		}
+		if (m_v3MinL.z > a_pointList[i].z)
+		{
+			m_v3MinL.z = a_pointList[i].z;
+		}
+	}
+
+	// find average between max and min
+	m_v3Center = (m_v3MaxL + m_v3MinL) / 2.0f;
+
+	// set radius (center to furthest away point)
+	m_fRadius = glm::distance(m_v3Center, m_v3MaxL);
 }
 MyRigidBody::MyRigidBody(MyRigidBody const& other)
 {
@@ -101,7 +149,15 @@ MyRigidBody::~MyRigidBody(){Release();};
 void MyRigidBody::AddToRenderList(void)
 {
 	if (!m_bVisible)
-		return;
+		return; 
+	
+	// move sphere to center
+	matrix4 m4Transform = glm::translate(IDENTITY_M4, m_v3Center);
+
+	//scale sphere to size of radius
+	m4Transform = m4Transform * glm::scale(IDENTITY_M4, vector3(m_fRadius, m_fRadius, m_fRadius));
+
+	m_pMeshMngr->AddWireSphereToRenderList(IDENTITY_M4, m_v3Color);
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const other)
 {
