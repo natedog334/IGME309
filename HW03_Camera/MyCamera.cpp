@@ -3,9 +3,9 @@ using namespace BTX;
 //  MyCamera
 void MyCamera::SetPositionTargetAndUpward(vector3 a_v3Position, vector3 a_v3Target, vector3 a_v3Upward)
 {
-	//TODO:: replace the super call with your functionality
-	//Tip: Changing any positional vector forces you to calculate new directional ones
-	super::SetPositionTargetAndUpward(a_v3Position, a_v3Target, a_v3Upward);
+	m_v3Position = a_v3Position;
+	m_v3Target = a_v3Target;
+	m_v3Upward = a_v3Upward;
 
 	//After changing any vectors you need to recalculate the MyCamera View matrix.
 	//While this is executed within the parent call above, when you remove that line
@@ -21,16 +21,20 @@ void MyCamera::MoveForward(float a_fDistance)
 	//		 in the _Binary folder you will notice that we are moving 
 	//		 backwards and we never get closer to the plane as we should 
 	//		 because as we are looking directly at it.
-	m_v3Position += vector3(0.0f, 0.0f, a_fDistance);
-	m_v3Target += vector3(0.0f, 0.0f, a_fDistance);
+	m_v3Position += (m_v3Forward * a_fDistance);
+	m_v3Target += (m_v3Forward * a_fDistance);
 }
 void MyCamera::MoveVertical(float a_fDistance)
 {
 	//Tip:: Look at MoveForward
+	m_v3Position += (m_v3Upward * a_fDistance);
+	m_v3Target += (m_v3Upward * a_fDistance);
 }
 void MyCamera::MoveSideways(float a_fDistance)
 {
 	//Tip:: Look at MoveForward
+	m_v3Position += (m_v3Rightward * a_fDistance);
+	m_v3Target += (m_v3Rightward * a_fDistance);
 }
 void MyCamera::CalculateView(void)
 {
@@ -40,7 +44,12 @@ void MyCamera::CalculateView(void)
 	//		 it will receive information from the main code on how much these orientations
 	//		 have change so you only need to focus on the directional and positional 
 	//		 vectors. There is no need to calculate any right click process or connections.
+	m_v3Forward = m_v3PitchYawRoll;
+	m_v3Rightward = glm::cross(m_v3Forward, m_v3Upward);
+
+	matrix4 m4rotation = glm::yawPitchRoll(m_v3PitchYawRoll.y, m_v3PitchYawRoll.x, 0.0f);
 	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward);
+	//m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward) * glm::yawPitchRoll(m_v3PitchYawRoll.y, m_v3PitchYawRoll.x, 0.0f);
 }
 //You can assume that the code below does not need changes unless you expand the functionality
 //of the class or create helper methods, etc.
