@@ -6,6 +6,8 @@ void MyCamera::SetPositionTargetAndUpward(vector3 a_v3Position, vector3 a_v3Targ
 	m_v3Position = a_v3Position;
 	m_v3Target = a_v3Target;
 	m_v3Upward = a_v3Upward;
+	m_v3Forward = -1 * glm::normalize(a_v3Position);
+	m_v3Rightward = glm::cross(m_v3Forward, m_v3Upward);
 
 	//After changing any vectors you need to recalculate the MyCamera View matrix.
 	//While this is executed within the parent call above, when you remove that line
@@ -44,11 +46,8 @@ void MyCamera::CalculateView(void)
 	//		 it will receive information from the main code on how much these orientations
 	//		 have change so you only need to focus on the directional and positional 
 	//		 vectors. There is no need to calculate any right click process or connections.
-	m_v3Forward = m_v3PitchYawRoll;
-	m_v3Rightward = glm::cross(m_v3Forward, m_v3Upward);
-
 	matrix4 m4rotation = glm::yawPitchRoll(m_v3PitchYawRoll.y, m_v3PitchYawRoll.x, 0.0f);
-	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward);
+	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward) * m4rotation;
 	//m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward) * glm::yawPitchRoll(m_v3PitchYawRoll.y, m_v3PitchYawRoll.x, 0.0f);
 }
 //You can assume that the code below does not need changes unless you expand the functionality
