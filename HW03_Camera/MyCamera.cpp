@@ -28,13 +28,18 @@ void MyCamera::MoveSideways(float a_fDistance)
 }
 void MyCamera::CalculateView(void)
 {
-	glm::quat qRotation = glm::yawPitchRoll(m_v3PitchYawRoll.y, m_v3PitchYawRoll.x, 0.0f);
-	qRotation = glm::normalize(qRotation);
-	m_v3Forward = glm::rotate(qRotation, m_v3Forward);
-	m_v3Rightward = glm::cross(m_v3Forward, m_v3Upward);
+	if (m_v3PitchYawRoll != m_v3OldPitchYawRoll)
+	{
+		glm::quat qRotation = glm::yawPitchRoll(m_v3PitchYawRoll.y, m_v3PitchYawRoll.x, 0.0f);
+		qRotation = glm::normalize(qRotation);
+		m_v3Forward = glm::rotate(qRotation, m_v3Forward);
+		m_v3Rightward = glm::cross(m_v3Forward, m_v3Upward);
+	}
 
 	m_v3Target = m_v3Position + m_v3Forward;
 	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward);
+
+	m_v3OldPitchYawRoll = m_v3PitchYawRoll;
 }
 //You can assume that the code below does not need changes unless you expand the functionality
 //of the class or create helper methods, etc.
