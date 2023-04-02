@@ -28,14 +28,23 @@ void MyCamera::MoveSideways(float a_fDistance)
 }
 void MyCamera::CalculateView(void)
 {
+	// only do rotations if the user has changed the orientation
 	if (m_v3PitchYawRoll != m_v3OldPitchYawRoll)
 	{
-		glm::quat qRotation = glm::yawPitchRoll(m_v3PitchYawRoll.y, m_v3PitchYawRoll.x, 0.0f);
-		qRotation = glm::normalize(qRotation);
-		m_v3Forward = glm::rotate(qRotation, m_v3Forward);
+		// get independent quaternions for pitch and yaw
+		glm::quat qPitch = glm::angleAxis(m_v3PitchYawRoll.x, glm::vec3(1, 0, 0));
+		glm::quat qYaw = glm::angleAxis(m_v3PitchYawRoll.y, glm::vec3(0, 1, 0));
+
+		// combine pitch and yaw quaternions to get orientation
+		glm::quat orientation = qPitch * qYaw;
+		orientation = glm::normalize(orientation);
+
+		// adjust direction vectors based on new orientation
+		m_v3Forward = glm::rotate(orientation, m_v3Forward);
 		m_v3Rightward = glm::cross(m_v3Forward, m_v3Upward);
 	}
 
+	// update target and view based on orientation
 	m_v3Target = m_v3Position + m_v3Forward;
 	m_m4View = glm::lookAt(m_v3Position, m_v3Target, m_v3Upward);
 
