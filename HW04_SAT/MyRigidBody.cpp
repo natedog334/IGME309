@@ -6,6 +6,32 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	//TODO: Calculate the SAT algorithm I STRONGLY suggest you use the
 	//Real Time Collision detection algorithm for OBB here but feel free to
 	//implement your own solution.
+	// EPSILON = tolerance value; how close are you to desired value (0.000001) (glm::epsilon)
+	// a.e[0] = half width x
+	// a.e[1] = half width y
+	// a.e[2] = half width z
+	// return 0, no separating plane
+
+	float ra, rb;
+	glm::mat3x3 R, AbsR;
+
+	R[0][0] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
+	R[0][1] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
+	R[0][2] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
+	R[1][0] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
+	R[1][1] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
+	R[1][2] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
+	R[2][0] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
+	R[2][1] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
+	R[2][2] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
+
+	vector3 t = a_pOther->GetCenterGlobal() - GetCenterGlobal();
+	t = vector3(
+		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_X, 1.0f))), 
+		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_Y, 1.0f))), 
+		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_Z, 1.0f)))
+	);
+
 	return BTXs::eSATResults::SAT_NONE;
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
@@ -21,7 +47,7 @@ bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 	{
 		uint nResult = SAT(a_pOther);
 
-		if (bColliding) //The SAT shown they are colliding
+		if (nResult) //The SAT shown they are colliding
 		{
 			this->AddCollisionWith(a_pOther);
 			a_pOther->AddCollisionWith(this);
