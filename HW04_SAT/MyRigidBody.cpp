@@ -6,100 +6,11 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	//TODO: Calculate the SAT algorithm I STRONGLY suggest you use the
 	//Real Time Collision detection algorithm for OBB here but feel free to
 	//implement your own solution.
-	// EPSILON = tolerance value; how close are you to desired value (0.000001) (glm::epsilon)
-	// a.e[0] = half width x
-	// a.e[1] = half width y
-	// a.e[2] = half width z
-	// return 0, no separating plane
-	/*
-	int TestOBBOBB(OBB &a, OBB &b)
-{
-    float ra, rb;
-    Matrix33 R, AbsR;
- 
-    // Compute rotation matrix expressing b in a’s coordinate frame
-    for (int i =0;i<3; i++)
-       for (int j = 0;j<3; j++)
-          R[i][j] = Dot(a.u[i], b.u[j]);
- 
-    // Compute translation vector t
-    Vector t = b.c - a.c;
-    // Bring translation into a’s coordinate frame
-    t = Vector(Dot(t, a.u[0]), Dot(t, a.u[1]), Dot(t, a.u[2]));
- 
-    // Compute common subexpressions. Add in an epsilon term to
-    // counteract arithmetic errors when two edges are parallel and
-    // their cross product is (near) null (see text for details)
-    for (int i=0;i<3; i++)
-       for (int j=0;j<3; j++)
-           AbsR[i][j] = Abs(R[i][j]) + EPSILON;
- 
-    // Test axes L = A0, L = A1, L = A2
-    for (int i=0;i<3; i++) {       ra = a.e[i];
-        rb = b.e[0] * AbsR[i][0] + b.e[1] * AbsR[i][1] + b.e[2] * AbsR[i][2];
-        if (Abs(t[i]) > ra + rb) return 0;
-    }
- 
-    // Test axes L = B0, L = B1, L = B2
-    for (int i=0;i<3; i++) {
-        ra = a.e[0] * AbsR[0][i] + a.e[1] * AbsR[1][i] + a.e[2] * AbsR[2][i];
-        rb = b.e[i];
-        if (Abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > ra + rb) return 0;
-    }
- 
-    // Test axis L = A0 x B0
-    ra = a.e[1] * AbsR[2][0] + a.e[2] * AbsR[1][0];
-    rb = b.e[1] * AbsR[0][2] + b.e[2] * AbsR[0][1];
-    if (Abs(t[2] * R[1][0] - t[1] * R[2][0]) > ra + rb) return 0;
- 
-    // Test axis L = A0 x B1
-    ra = a.e[1] * AbsR[2][1] + a.e[2] * AbsR[1][1];
-    rb = b.e[0] * AbsR[0][2] + b.e[2] * AbsR[0][0];
-    if (Abs(t[2] * R[1][1] - t[1] * R[2][1]) > ra + rb) return 0;
- 
-    // Test axis L = A0 x B2
-    ra = a.e[1] * AbsR[2][2] + a.e[2] * AbsR[1][2];
-    rb = b.e[0] * AbsR[0][1] + b.e[1] * AbsR[0][0];
-    if (Abs(t[2] * R[1][2] - t[1] * R[2][2]) > ra + rb) return 0;
- 
-    // Test axis L = A1 x B0
-    ra = a.e[0] * AbsR[2][0] + a.e[2] * AbsR[0][0];
-    rb = b.e[1] * AbsR[1][2] + b.e[2] * AbsR[1][1];
-    if (Abs(t[0] * R[2][0] - t[2] * R[0][0]) > ra + rb) return 0;
- 
-    // Test axis L = A1 x B1
-    ra = a.e[0] * AbsR[2][1] + a.e[2] * AbsR[0][1];
-    rb = b.e[0] * AbsR[1][2] + b.e[2] * AbsR[1][0];
-    if (Abs(t[0] * R[2][1] - t[2] * R[0][1]) > ra + rb) return 0;
- 
-    // Test axis L = A1 x B2
-    ra = a.e[0] * AbsR[2][2] + a.e[2] * AbsR[0][2];
-    rb = b.e[0] * AbsR[1][1] + b.e[1] * AbsR[1][0];
-    if (Abs(t[0] * R[2][2] - t[2] * R[0][2]) > ra + rb) return 0;
- 
-    // Test axis L = A2 x B0
-    ra = a.e[0] * AbsR[1][0] + a.e[1] * AbsR[0][0];
-    rb = b.e[1] * AbsR[2][2] + b.e[2] * AbsR[2][1];
-    if (Abs(t[1] * R[0][0] - t[0] * R[1][0]) > ra + rb) return 0;
- 
-    // Test axis L = A2 x B1
-    ra = a.e[0] * AbsR[1][1] + a.e[1] * AbsR[0][1];
-    rb = b.e[0] * AbsR[2][2] + b.e[2] * AbsR[2][0];
-    if (Abs(t[1] * R[0][1] - t[0] * R[1][1]) > ra + rb) return 0;
- 
-    // Test axis L = A2 x B2
-    ra = a.e[0] * AbsR[1][2] + a.e[1] * AbsR[0][2];
-    rb = b.e[0] * AbsR[2][1] + b.e[1] * AbsR[2][0];
-    if (Abs(t[1] * R[0][2] - t[0] * R[1][2]) > ra + rb) return 0;
- 
-    // Since no separating axis is found, the OBBs must be intersecting
-    return 1;
-}
-	*/
 
 	float ra, rb;
 	glm::mat3x3 R, AbsR;
 
+	// compute rotation matrix
 	R[0][0] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
 	R[0][1] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
 	R[0][2] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
@@ -110,6 +21,7 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	R[2][1] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
 	R[2][2] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
 
+	// compute translation vector
 	vector3 t = a_pOther->GetCenterGlobal() - GetCenterGlobal();
 	t = vector3(
 		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_X, 1.0f))), 
@@ -117,7 +29,81 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_Z, 1.0f)))
 	);
 
-	return BTXs::eSATResults::SAT_NONE;
+	// compute common subexpressions and account for tolerance
+	for (int i = 0; i < 3; i++)
+	{
+		for (int j = 0; j < 3; j++)
+		{
+			AbsR[i][j] = abs(R[i][j]) + glm::epsilon<float>();
+		}
+	}
+
+	vector3 ae = m_v3HalfWidth, be = a_pOther->m_v3HalfWidth;
+
+	// test this RigidBody's X, Y, and Z axes
+	for (int i = 0; i < 3; i++)
+	{
+		ra = ae[i];
+		rb = be[0] * AbsR[i][0] + be[1] * AbsR[i][1] + be[2] * AbsR[i][2];
+		if (abs(t[i]) > (ra + rb)) return 0;
+	}
+
+	// test the other RigidBody's X, Y, and Z axes
+	// FALLS OUT HERE @ i = 0
+	for (int i = 0; i < 3; i++)
+	{
+		ra = ae[0] * AbsR[0][i] + ae[1] * AbsR[1][i] + ae[2] * AbsR[2][i];
+		rb = be[i];
+		if (abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > (ra + rb)) return 0;
+	}
+
+	// test (this X) x (other X)
+	ra = ae[1] * AbsR[2][0] + ae[2] * AbsR[1][0];
+	rb = be[1] * AbsR[0][2] + be[2] * AbsR[0][1];
+	if (abs(t[2] * R[1][0] - t[1] * R[2][0]) > (ra + rb)) return 0;
+
+	// test (this X) x (other Y)
+	ra = ae[1] * AbsR[2][1] + ae[2] * AbsR[1][1];
+	rb = be[0] * AbsR[0][2] + be[2] * AbsR[0][0];
+	if (abs(t[2] * R[1][1] - t[1] * R[2][1]) > (ra + rb)) return 0;
+
+	// test (this X) x (other Z)
+	ra = ae[1] * AbsR[2][2] + ae[2] * AbsR[1][2];
+	rb = be[0] * AbsR[0][1] + be[1] * AbsR[0][0];
+	if (abs(t[2] * R[1][2] - t[1] * R[2][2]) > (ra + rb)) return 0;
+
+	// test (this Y) x (other X)
+	ra = ae[0] * AbsR[2][0] + ae[2] * AbsR[0][0];
+	rb = be[1] * AbsR[1][2] + be[2] * AbsR[1][1];
+	if (abs(t[0] * R[2][0] - t[2] * R[0][0]) > (ra + rb)) return 0;
+
+	// test (this Y) x (other Y)
+	ra = ae[0] * AbsR[2][1] + ae[2] * AbsR[0][1];
+	rb = be[0] * AbsR[1][2] + be[2] * AbsR[1][0];
+	if (abs(t[0] * R[2][1] - t[2] * R[0][1]) > (ra + rb)) return 0;
+
+	// test (this Y) x (other Z)
+	ra = ae[0] * AbsR[2][2] + ae[2] * AbsR[0][2];
+	rb = be[0] * AbsR[1][1] + be[1] * AbsR[1][0];
+	if (abs(t[0] * R[2][2] - t[2] * R[0][2]) > (ra + rb)) return 0;
+
+	// test (this Z) x (other X)
+	ra = ae[0] * AbsR[1][0] + ae[1] * AbsR[0][0];
+	rb = be[1] * AbsR[2][2] + be[2] * AbsR[2][1];
+	if (abs(t[1] * R[0][0] - t[0] * R[1][0]) > (ra + rb)) return 0;
+
+	// test (this Z) x (other Y)
+	ra = ae[0] * AbsR[1][1] + ae[1] * AbsR[0][1];
+	rb = be[0] * AbsR[2][2] + be[2] * AbsR[2][0];
+	if (abs(t[1] * R[0][1] - t[0] * R[1][1]) > (ra + rb)) return 0;
+
+	// test (this Z) x (other Z)
+	ra = ae[0] * AbsR[1][2] + ae[1] * AbsR[0][2];
+	rb = be[0] * AbsR[2][1] + be[1] * AbsR[2][0];
+	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > (ra + rb)) return 0;
+
+	// no separating axis; objects must be colliding
+	return 1;
 }
 bool MyRigidBody::IsColliding(MyRigidBody* const a_pOther)
 {
