@@ -11,22 +11,22 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	glm::mat3x3 R, AbsR;
 
 	// compute rotation matrix
-	R[0][0] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
-	R[0][1] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
-	R[0][2] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
-	R[1][0] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
-	R[1][1] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
-	R[1][2] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
-	R[2][0] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 1.0f));
-	R[2][1] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 1.0f));
-	R[2][2] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 1.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 1.0f));
+	R[0][0] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 0.0f));
+	R[0][1] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 0.0f));
+	R[0][2] = glm::dot(m_m4ToWorld * vector4(AXIS_X, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 0.0f));
+	R[1][0] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 0.0f));
+	R[1][1] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 0.0f));
+	R[1][2] = glm::dot(m_m4ToWorld * vector4(AXIS_Y, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 0.0f));
+	R[2][0] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_X, 0.0f));
+	R[2][1] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Y, 0.0f));
+	R[2][2] = glm::dot(m_m4ToWorld * vector4(AXIS_Z, 0.0f), a_pOther->m_m4ToWorld * vector4(AXIS_Z, 0.0f));
 
 	// compute translation vector
 	vector3 t = a_pOther->GetCenterGlobal() - GetCenterGlobal();
 	t = vector3(
-		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_X, 1.0f))), 
-		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_Y, 1.0f))), 
-		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_Z, 1.0f)))
+		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_X, 0.0f))), 
+		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_Y, 0.0f))), 
+		glm::dot(t, vector3(m_m4ToWorld * vector4(AXIS_Z, 0.0f)))
 	);
 
 	// compute common subexpressions and account for tolerance
@@ -39,13 +39,15 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	}
 
 	vector3 ae = m_v3HalfWidth, be = a_pOther->m_v3HalfWidth;
+	float tl;
 
 	// test this RigidBody's X, Y, and Z axes
 	for (int i = 0; i < 3; i++)
 	{
 		ra = ae[i];
 		rb = be[0] * AbsR[i][0] + be[1] * AbsR[i][1] + be[2] * AbsR[i][2];
-		if (abs(t[i]) > (ra + rb)) return 0;
+		tl = abs(t[i]);
+		if (tl > (ra + rb)) return 0;
 	}
 
 	// test the other RigidBody's X, Y, and Z axes
@@ -54,53 +56,63 @@ uint MyRigidBody::SAT(MyRigidBody* const a_pOther)
 	{
 		ra = ae[0] * AbsR[0][i] + ae[1] * AbsR[1][i] + ae[2] * AbsR[2][i];
 		rb = be[i];
-		if (abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]) > (ra + rb)) return 0;
+		tl = abs(t[0] * R[0][i] + t[1] * R[1][i] + t[2] * R[2][i]);
+		if (tl > (ra + rb)) return 0;
 	}
 
 	// test (this X) x (other X)
 	ra = ae[1] * AbsR[2][0] + ae[2] * AbsR[1][0];
 	rb = be[1] * AbsR[0][2] + be[2] * AbsR[0][1];
-	if (abs(t[2] * R[1][0] - t[1] * R[2][0]) > (ra + rb)) return 0;
+	tl = abs(t[2] * R[1][0] - t[1] * R[2][0]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this X) x (other Y)
 	ra = ae[1] * AbsR[2][1] + ae[2] * AbsR[1][1];
 	rb = be[0] * AbsR[0][2] + be[2] * AbsR[0][0];
-	if (abs(t[2] * R[1][1] - t[1] * R[2][1]) > (ra + rb)) return 0;
+	tl = abs(t[2] * R[1][1] - t[1] * R[2][1]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this X) x (other Z)
 	ra = ae[1] * AbsR[2][2] + ae[2] * AbsR[1][2];
 	rb = be[0] * AbsR[0][1] + be[1] * AbsR[0][0];
-	if (abs(t[2] * R[1][2] - t[1] * R[2][2]) > (ra + rb)) return 0;
+	tl = abs(t[2] * R[1][2] - t[1] * R[2][2]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this Y) x (other X)
 	ra = ae[0] * AbsR[2][0] + ae[2] * AbsR[0][0];
 	rb = be[1] * AbsR[1][2] + be[2] * AbsR[1][1];
-	if (abs(t[0] * R[2][0] - t[2] * R[0][0]) > (ra + rb)) return 0;
+	tl = abs(t[0] * R[2][0] - t[2] * R[0][0]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this Y) x (other Y)
 	ra = ae[0] * AbsR[2][1] + ae[2] * AbsR[0][1];
 	rb = be[0] * AbsR[1][2] + be[2] * AbsR[1][0];
-	if (abs(t[0] * R[2][1] - t[2] * R[0][1]) > (ra + rb)) return 0;
+	tl = abs(t[0] * R[2][1] - t[2] * R[0][1]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this Y) x (other Z)
 	ra = ae[0] * AbsR[2][2] + ae[2] * AbsR[0][2];
 	rb = be[0] * AbsR[1][1] + be[1] * AbsR[1][0];
-	if (abs(t[0] * R[2][2] - t[2] * R[0][2]) > (ra + rb)) return 0;
+	tl = abs(t[0] * R[2][2] - t[2] * R[0][2]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this Z) x (other X)
 	ra = ae[0] * AbsR[1][0] + ae[1] * AbsR[0][0];
 	rb = be[1] * AbsR[2][2] + be[2] * AbsR[2][1];
-	if (abs(t[1] * R[0][0] - t[0] * R[1][0]) > (ra + rb)) return 0;
+	tl = abs(t[1] * R[0][0] - t[0] * R[1][0]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this Z) x (other Y)
 	ra = ae[0] * AbsR[1][1] + ae[1] * AbsR[0][1];
 	rb = be[0] * AbsR[2][2] + be[2] * AbsR[2][0];
-	if (abs(t[1] * R[0][1] - t[0] * R[1][1]) > (ra + rb)) return 0;
+	tl = abs(t[1] * R[0][1] - t[0] * R[1][1]);
+	if (tl > (ra + rb)) return 0;
 
 	// test (this Z) x (other Z)
 	ra = ae[0] * AbsR[1][2] + ae[1] * AbsR[0][2];
 	rb = be[0] * AbsR[2][1] + be[1] * AbsR[2][0];
-	if (abs(t[1] * R[0][2] - t[0] * R[1][2]) > (ra + rb)) return 0;
+	tl = abs(t[1] * R[0][2] - t[0] * R[1][2]);
+	if (tl > (ra + rb)) return 0;
 
 	// no separating axis; objects must be colliding
 	return 1;
