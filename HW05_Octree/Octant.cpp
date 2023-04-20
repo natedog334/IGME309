@@ -24,7 +24,6 @@ Octant::Octant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 	//want in it, remember each subdivision will create 8 children for this octant but not all children
 	//of those children will have children of their own
 
-	//The following is a made-up size, you need to make sure it is measuring all the object boxes in the world
 	std::vector<vector3> lMinMax;
 	int nObjects = m_pEntityMngr->GetEntityCount();
 
@@ -38,8 +37,7 @@ Octant::Octant(uint a_nMaxLevel, uint a_nIdealEntityCount)
 	RigidBody pRigidBody = RigidBody(lMinMax);
 
 
-	//The following will set up the values of the octant, make sure the are right, the rigid body at start
-	//is NOT fine, it has made-up values
+	//The following will set up the values of the octant
 	m_fSize = pRigidBody.GetHalfWidth().x * 2.0f;
 	m_v3Center = pRigidBody.GetCenterLocal();
 	m_v3Min = m_v3Center - pRigidBody.GetHalfWidth();
